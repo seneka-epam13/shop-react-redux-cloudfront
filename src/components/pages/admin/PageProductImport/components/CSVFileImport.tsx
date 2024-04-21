@@ -31,11 +31,25 @@ export default function CSVFileImport({ url, title }: CSVFileImportProps) {
       }
       const response = await axios({
         method: "GET",
+        headers: {
+          Authorization: `${localStorage.getItem("authorization_token")}`,
+        },
         url,
         params: {
           name: encodeURIComponent(file.name),
         },
       });
+
+      if (response.status === 401) {
+        alert("Unauthorized: Invalid or expired token");
+        return;
+      }
+
+      if (response.status === 403) {
+        alert("Forbidden: You do not have permission to perform this action");
+        return;
+      }
+
       console.log("File to upload: ", file.name);
       console.log("Uploading to: ", response.data);
       const result = await fetch(response.data, {
